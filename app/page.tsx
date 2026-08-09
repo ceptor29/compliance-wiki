@@ -1,69 +1,77 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
+import { getAllFrameworks, getRecentChanges } from "../lib/data";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const [allFrameworks, recentChanges] = await Promise.all([
+    getAllFrameworks(),
+    getRecentChanges(8),
+  ]);
+
+  const categories = [...new Set(allFrameworks.map((f) => f.category))];
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div>
+      <section className="hero">
+        <h1>One source of truth for compliance</h1>
+        <p>
+          Every compliance framework, every control, and every change — tracked,
+          summarized, and searchable. Follow what changes so you never miss a
+          requirement update.
+        </p>
+        <div className="hero-actions">
+          <Link href="/frameworks" className="btn">
+            Browse Frameworks
+          </Link>
+          <Link href="/changes" className="btn btn-outline">
+            View Change Log
+          </Link>
+        </div>
+      </section>
+
+      <section>
+        <h2>Frameworks</h2>
+        {categories.map((category) => (
+          <div key={category} className="category-block">
+            <h3 className="category-title">{category}</h3>
+            <div className="card-grid">
+              {allFrameworks
+                .filter((f) => f.category === category)
+                .map((f) => (
+                  <Link key={f.id} href={`/frameworks/${f.slug}`} className="card">
+                    <h4>{f.name}</h4>
+                    <p className="issuer">{f.issuer}</p>
+                    <p className="muted">{f.description}</p>
+                  </Link>
+                ))}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <section>
+        <h2>Latest changes</h2>
+        {recentChanges.length === 0 ? (
+          <p className="muted">
+            No changes tracked yet. The daily AI collection job will populate
+            this feed.
           </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        ) : (
+          <ul className="change-list">
+            {recentChanges.map((c) => (
+              <li key={c.id}>
+                <span className={`badge badge-${c.type}`}>{c.type}</span>
+                <Link href={`/frameworks/${c.frameworkSlug}`} className="muted">
+                  {c.frameworkName}
+                </Link>{" "}
+                — {c.controlIdText} {c.controlTitle}
+                <p className="muted">{c.summary}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }
