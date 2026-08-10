@@ -43,6 +43,7 @@ yarn-error.log*
 # local dev logs
 .next-*.log
 dev-*.log
+deploy-*.log
 
 # vercel
 .vercel
