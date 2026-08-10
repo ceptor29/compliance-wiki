@@ -1,12 +1,15 @@
 import Link from "next/link";
-import { getAllFrameworks, getRecentChanges } from "../lib/data";
+import { getAllFrameworks, getRecentChanges, getDashboardStats, getMostChangedFrameworks } from "../lib/data";
+import FrameworkCard from "./components/FrameworkCard";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [allFrameworks, recentChanges] = await Promise.all([
+  const [allFrameworks, recentChanges, stats, mostChanged] = await Promise.all([
     getAllFrameworks(),
     getRecentChanges(8),
+    getDashboardStats(),
+    getMostChangedFrameworks(5),
   ]);
 
   const categories = [...new Set(allFrameworks.map((f) => f.category))];
@@ -30,8 +33,32 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="stats-row">
+        <div className="stat-card">
+          <span className="stat-value">{stats.frameworkCount}</span>
+          <span className="stat-label">Frameworks</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-value">{stats.controlCount}</span>
+          <span className="stat-label">Controls tracked</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-value">{stats.sourceCount}</span>
+          <span className="stat-label">Monitored sources</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-value">{stats.changesThisWeek}</span>
+          <span className="stat-label">Changes this week</span>
+        </div>
+      </section>
+
       <section>
-        <h2>Frameworks</h2>
+        <div className="section-head">
+          <h2>Frameworks</h2>
+          <Link href="/frameworks" className="muted">
+            View all →
+          </Link>
+        </div>
         {categories.map((category) => (
           <div key={category} className="category-block">
             <h3 className="category-title">{category}</h3>
@@ -39,11 +66,7 @@ export default async function Home() {
               {allFrameworks
                 .filter((f) => f.category === category)
                 .map((f) => (
-                  <Link key={f.id} href={`/frameworks/${f.slug}`} className="card">
-                    <h4>{f.name}</h4>
-                    <p className="issuer">{f.issuer}</p>
-                    <p className="muted">{f.description}</p>
-                  </Link>
+                  <FrameworkCard key={f.id} framework={f} />
                 ))}
             </div>
           </div>
@@ -51,7 +74,12 @@ export default async function Home() {
       </section>
 
       <section>
-        <h2>Latest changes</h2>
+        <div className="section-head">
+          <h2>Latest changes</h2>
+          <Link href="/changes" className="muted">
+            View all →
+          </Link>
+        </div>
         {recentChanges.length === 0 ? (
           <p className="muted">
             No changes tracked yet. The daily AI collection job will populate
@@ -72,6 +100,24 @@ export default async function Home() {
           </ul>
         )}
       </section>
+
+      {mostChanged.length > 0 && (
+        <section>
+          <h2>Most active frameworks</h2>
+          <div className="top-list">
+            {mostChanged.map((m, i) => (
+              <Link key={m.frameworkSlug} href={`/frameworks/${m.frameworkSlug}`} className="top-item">
+                <span className="top-rank">{i + 1}</span>
+                <span className="top-name">
+                  {m.frameworkName}
+                  <span className="muted"> — {m.frameworkIssuer}</span>
+                </span>
+                <span className="badge">{m.changeCount} changes</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

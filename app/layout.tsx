@@ -38,6 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main className="container">{children}</main>
         <footer className="site-footer">
           <p>Compliance Wiki — community-curated. Verify against official sources before relying on any control text.</p>
+          <p className="site-credit">Built with care by Ayog</p>
         </footer>
       </body>
     </html>

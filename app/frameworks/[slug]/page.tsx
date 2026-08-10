@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFrameworkControls, getFrameworkSources, getFrameworkBySlug } from "../../../lib/data";
+import ControlsTable from "../../components/ControlsTable";
 
 export const dynamic = "force-dynamic";
 
@@ -49,26 +50,7 @@ export default async function FrameworkPage({ params }: PageProps<"/frameworks/[
             and populate controls from the official source.
           </p>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Domain</th>
-              </tr>
-            </thead>
-            <tbody>
-              {controls.map((c) => (
-                <tr key={c.id}>
-                  <td>
-                    <Link href={`/controls/${c.id}`}>{c.controlId}</Link>
-                  </td>
-                  <td>{c.title}</td>
-                  <td>{c.domain ?? "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <ControlsTable controls={controls} />
         )}
       </section>
 

@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, gt, count } from "drizzle-orm";
 import { db } from "./db";
 import { frameworks, controls, changes, sources } from "../db/schema";
 
@@ -66,4 +66,39 @@ export async function getFrameworkSources(slug: string) {
   if (!framework) return null;
   const src = await db.select().from(sources).where(eq(sources.frameworkId, framework.id));
   return { framework, sources: src };
+}
+
+export async function getDashboardStats() {
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+  const [frameworkCount, controlCount, sourcesCount, changesThisWeek] =
+    await Promise.all([
+      db.select().from(frameworks),
+      db.select().from(controls),
+      db.select().from(sources),
+      db.select().from(changes).where(gt(changes.discoveredAt, weekAgo)),
+    ]);
+
+  return {
+    frameworkCount: frameworkCount.length,
+    controlCount: controlCount.length,
+    sourceCount: sourcesCount.length,
+    changesThisWeek: changesThisWeek.length,
+  };
+}
+
+export async function getMostChangedFrameworks(limit = 5) {
+  return db
+    .select({
+      frameworkSlug: frameworks.slug,
+      frameworkName: frameworks.name,
+      frameworkIssuer: frameworks.issuer,
+      changeCount: count(changes.id),
+    })
+    .from(changes)
+    .innerJoin(controls, eq(changes.controlId, controls.id))
+    .innerJoin(frameworks, eq(controls.frameworkId, frameworks.id))
+    .groupBy(frameworks.id)
+    .orderBy(desc(count(changes.id)))
+    .limit(limit);
 }
