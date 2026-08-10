@@ -4,6 +4,8 @@ A single source of truth for compliance frameworks, their controls, and every ch
 
 **Live site:** https://compliance-wiki-three.vercel.app/ · **34 frameworks · 1,559 controls · 85 monitored sources · live change log**
 
+**Roadmap:** see [ROADMAP.md](ROADMAP.md) for the plan to add org-level compliance assessments, evidence integrations, and monitoring.
+
 ## Stack (100% free tier)
 - **Next.js 16** (App Router, Turbopack) — hosted on Vercel (free)
 - **SQLite/libsql** via Drizzle ORM — Turso (free tier)
