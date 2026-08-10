@@ -2,6 +2,8 @@
 
 A single source of truth for compliance frameworks, their controls, and every change across the industry. AI-assisted collection, human-reviewed publishing, newsletter digests.
 
+**Live site:** https://compliance-wiki-three.vercel.app/ · **34 frameworks · 1,559 controls · 85 monitored sources · live change log**
+
 ## Stack (100% free tier)
 - **Next.js 16** (App Router, Turbopack) — hosted on Vercel (free)
 - **SQLite/libsql** via Drizzle ORM — Turso (free tier)
